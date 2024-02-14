@@ -1,4 +1,4 @@
-# Build an Interpreter for the Datalog Language
+# Interpreter for the Datalog Language
 
 ### Scanner (Lexer)
 Create a lexer that tokenizes input. Input files are read and split based on grammar rules for the Datalog language.
