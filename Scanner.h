@@ -70,9 +70,10 @@ void Scanner::scanComment() {
         str += input.at(0);
         input = input.substr(1);
     }
+    // Remove comments from output
 
-    Token t = Token(COMMENT, str, lineNumber);
-    tokens.push_back(t);
+    //Token t = Token(COMMENT, str, lineNumber);
+    //tokens.push_back(t);
 
     if (!input.empty()) {
         return;

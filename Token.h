@@ -7,32 +7,38 @@ enum TokenType {
 };
 
 class Token {
-private:
-    TokenType type;
-    std::string value;
-    int lineNumber;
-    static const std::string typeNames[];
+    private:
+        TokenType type;
+        std::string value;
+        int lineNumber;
+        static const std::string typeNames[];
 
-public:
-    Token(TokenType type, std::string value, int lineNumber)
-    : type(type), value(value), lineNumber(lineNumber) {}
-    
+    public:
+        Token(TokenType type, std::string value, int lineNumber)
+        : type(type), value(value), lineNumber(lineNumber) {}
+        
 
-    std::string toString() const {
-        std::stringstream out;
-        std::string typeStr = typeName(this->type);
-        out << "(" << typeStr << "," << "\"" << value << "\"" << "," << lineNumber << ")";
-        return out.str();
-    }
+        std::string toString() const {
+            std::stringstream out;
+            std::string typeStr = typeName(this->type);
+            out << "(" << typeStr << "," << "\"" << value << "\"" << "," << lineNumber << ")";
+            return out.str();
+        }
+        
+        int getLineNumber() const {
+            return lineNumber;
+        }
 
-    TokenType getType() const {
-        return type;
-    }
+        TokenType getType() const {
+            return type;
+        }
 
-public:
-    std::string typeName(TokenType type) const {
-        return typeNames[type];
-    }
+        std::string getValue() const {
+            return value;
+        }
+        std::string typeName(TokenType type) const {
+            return typeNames[type];
+        }   
 };
 
 const std::string Token::typeNames[] = {

@@ -5,7 +5,7 @@
 #include <fstream>
 #include "Parser.h"
 
-int main (int argc, char* argv[]) {
+int main(int argc, char* argv[]) {
     std::string input = argv[1];
     std::ifstream file(input);
 
@@ -23,12 +23,10 @@ int main (int argc, char* argv[]) {
     s.scanTokens();
     std::vector<Token> tokens = s.getTokens();
 
-    for(auto i = 0u; i < tokens.size(); i++) {
-        std::cout << tokens.at(i).toString() << std::endl;
-    }
-
-    std::cout << "Total Tokens = " << s.getTokenLength() << std::endl;
-
+    Parser p = Parser(tokens);
+    p.parse();
+    std::cout << p.getDatalogProgram().toString();
 
     return 0;
+
 }
