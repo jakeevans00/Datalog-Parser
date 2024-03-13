@@ -39,6 +39,10 @@ class Relation {
             return name;
         }
 
+        Scheme getScheme() const {
+            return scheme;
+        }
+
         string printVariables() {
             stringstream out;
 
@@ -68,6 +72,7 @@ class Relation {
             out << "\n";
             }
 
+                
             return out.str();
         }
 
@@ -76,21 +81,17 @@ class Relation {
             result.addTuples(tuples);
             
             vector<string> parameters = query.getParameters();
-            vector<int> indices;
            
             for (int i = 0; i < parameters.size(); ++i) {
                 if (parameters.at(i).at(0) == '\'') {
                     result = result.select(i, parameters.at(i), result);
                 } else {
-                    bool found = false;
-                    indices.push_back(i);
-
-                    for (int j = i; j < scheme.size(); ++j) {
-                        if (parameters.at(i) == scheme.at(j)) {
+                    for (int j = i + 1; j < parameters.size(); j++) {
+                        if (parameters.at(i) == parameters.at(j)) {
+                          
                             result = result.select(i, j, result);
-                            found = true;
                         }
-                    }   
+                    }
                 }
             }
             return result;
@@ -98,7 +99,7 @@ class Relation {
 
         Relation select(int index, const string& value, Relation result) const {
 
-            for (const auto& tuple : tuples) {
+            for (const auto& tuple : result.getTuples()) {
                 if (tuple.at(index) != value) {
                     result.deleteTuple(tuple);
                 }
@@ -108,7 +109,7 @@ class Relation {
         }
 
         Relation select(int index, int index2, Relation result) const {
-            for (const auto& tuple : tuples) {
+            for (const auto& tuple : result.getTuples()) {
                 if (tuple.at(index) != tuple.at(index2)) {
                     result.deleteTuple(tuple);
                 } 
@@ -133,12 +134,15 @@ class Relation {
             }
             return indices;
         }
-        
+
         Relation project(const vector<int>& indices) const {
             Scheme newScheme;
             for (int i : indices) {
-                newScheme.push_back(scheme.at(i));
+                if (!newScheme.find(scheme.at(i))) {
+                    newScheme.push_back(scheme.at(i));
+                }
             }
+            
             Relation result(name, newScheme);
             for (const auto& tuple : tuples) {
                 Tuple newTuple;

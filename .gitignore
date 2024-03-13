@@ -4,3 +4,4 @@ run-tests.sh
 project2.dSYM
 project3.dSYM
 .vscode
+output.txt

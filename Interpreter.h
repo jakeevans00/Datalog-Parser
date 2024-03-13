@@ -1,4 +1,5 @@
 #include "Database.h"
+#include <algorithm>
 #pragma once
 
 class Interpreter {
@@ -33,14 +34,40 @@ class Interpreter {
             for (Predicate q : datalogProgram.getQueries()) {
 
                 Relation relation = database.getRelation(q.getId());
+
+                vector<int> columnsToKeep;
+                vector<string> queryParameters;
+                Scheme newParameters;
+
+                for (int i = 0; i < q.getParameters().size(); i++) {
+                    string currParam = q.getParameters().at(i);
+
+                    if (currParam.at(0) != '\'') {
+                        if (!relation.getScheme().find(currParam)) {
+                            newParameters.push_back(currParam);
+                        } else {
+                            auto it = find(queryParameters.begin(), queryParameters.end(), currParam);
+                            if (it == queryParameters.end()) {
+                                columnsToKeep.push_back(i);
+                            }
+                            queryParameters.push_back(currParam);
+                        }
+                    }
+                }
          
                 Relation result = relation.evaluateQuery(q);
-                // vector<int> indices;
-                // Relation projectedResult = result.project();
+                Relation projectedResult = result.project(columnsToKeep);
+                Relation renamedResult = result.rename(newParameters);
 
                 cout << q.toString() << "? ";
                 if (result.getTuples().size() > 0) {
                     cout << "Yes(" << result.getTuples().size() << ")" << endl;
+                    if (columnsToKeep.size() > 0) {
+                        cout << projectedResult.toString();
+                    }
+                    if (newParameters.size() > 0) {
+                        cout << renamedResult.toString();
+                    }
                 } else {
                     cout << "No" << endl;
                 }
