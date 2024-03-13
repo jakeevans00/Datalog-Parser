@@ -3,6 +3,8 @@
 #include "Parameter.h"
 #pragma once
 
+using namespace std;
+
 class Predicate {
     private:
         std::string id;
@@ -15,12 +17,20 @@ class Predicate {
             parameters.push_back(p);
         }
 
+        std::string getId() {
+            return id;
+        }
+
         void setId(std::string id) {
             this->id = id;
         }
 
-        std::vector<Parameter> getParameters() {
-            return parameters;
+        vector<string> getParameters() {
+            vector<string> output;
+            for (Parameter p : parameters) {
+                output.push_back(p.toString());
+            }
+            return output;
         }
 
         std::string toString() {

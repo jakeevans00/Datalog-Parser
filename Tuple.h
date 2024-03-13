@@ -13,6 +13,8 @@ private:
 
 public:
 
+  Tuple () {}
+
   Tuple(vector<string> values) : values(values) { }
 
   unsigned size() const {
@@ -21,6 +23,10 @@ public:
 
   const string& at(int index) const {
     return values.at(index);
+  }
+
+  void push_back(const string& value) {
+    values.push_back(value);
   }
 
   bool operator<(const Tuple t) const {

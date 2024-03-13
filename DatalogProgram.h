@@ -3,6 +3,8 @@
 #include "Rule.h"
 #include <set>
 
+using namespace std;
+
 class DatalogProgram {
     private:
         std::vector<Predicate> schemes;
@@ -16,6 +18,10 @@ class DatalogProgram {
             schemes.push_back(p);
         }
 
+        vector<Predicate> getSchemes() {
+            return schemes;
+        }
+
         void addFact(Predicate p) {
             facts.push_back(p);
             for (Parameter param : p.getParameters()) {
@@ -23,8 +29,16 @@ class DatalogProgram {
             }
         }
 
+        vector<Predicate> getFacts() {
+            return facts;
+        }
+
         void addQuery(Predicate p) {
             queries.push_back(p);
+        }
+
+        vector<Predicate> getQueries() {
+            return queries;
         }
 
         void addRule(Rule r) {

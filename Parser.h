@@ -17,10 +17,7 @@ class Parser {
             datalogProgram();
             if (tokens.size() != 0) {
                 throwError();
-            } else {
-                std::cout << "Success!" << std::endl;
-            
-            }
+            } 
         }
 
         DatalogProgram getDatalogProgram() {
