@@ -19,6 +19,15 @@ class Database {
             throw std::runtime_error("Relation not found");
         }
 
+        Relation getRelationCopy(const string& name) {
+            for (const Relation& relation : relations) {
+            if (relation.getName() == name) {
+                return relation;
+            }
+            }
+            throw std::runtime_error("Relation not found");
+        }
+
         void addTuple(const string& name, const Tuple& tuple) {
             getRelation(name).addTuple(tuple);
         }

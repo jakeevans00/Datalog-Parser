@@ -1,5 +1,6 @@
 #include "Database.h"
 #include <algorithm>
+#include <map>
 #pragma once
 
 class Interpreter {
@@ -30,43 +31,54 @@ class Interpreter {
         }
 
         void interpret() {
-            createDatabase();
-            for (Predicate q : datalogProgram.getQueries()) {
+            for (Predicate query : datalogProgram.getQueries()) {
 
-                Relation relation = database.getRelation(q.getId());
+                // Get relation with same name as query
+                Relation relationCopy = database.getRelationCopy(query.getId());
+                
+                vector<string> parameters = query.getParameters();
+                vector<int> columnIndexes;
+                vector<string> newColumnNames;
+            
+                for (int i = 0; i < parameters.size(); ++i) {
+                    string value = parameters.at(i);
 
-                vector<int> columnsToKeep;
-                vector<string> queryParameters;
-                Scheme newParameters;
+                    if (value.at(0) == '\'') {
+                        relationCopy = relationCopy.select(i, value);
+                    } else {
+                        auto it = std::find(newColumnNames.begin(), newColumnNames.end(), value);
 
-                for (int i = 0; i < q.getParameters().size(); i++) {
-                    string currParam = q.getParameters().at(i);
-
-                    if (currParam.at(0) != '\'') {
-                        if (!relation.getScheme().find(currParam)) {
-                            newParameters.push_back(currParam);
+                        if (it == newColumnNames.end()) { // only add if not already in newColumnNames
+                            columnIndexes.push_back(i);
+                            newColumnNames.push_back(value);
                         } else {
-                            auto it = find(queryParameters.begin(), queryParameters.end(), currParam);
-                            if (it == queryParameters.end()) {
-                                columnsToKeep.push_back(i);
+                            int j = i + 1;
+                            for (int k = 0; k < newColumnNames.size(); ++k) {
+                                if (newColumnNames.at(k) == value) {
+                                    j = columnIndexes.at(k); // stored index of column name's first occurence
+                                    break;
+                                }
                             }
-                            queryParameters.push_back(currParam);
+                            relationCopy = relationCopy.select(i, j);
                         }
                     }
                 }
-         
-                Relation result = relation.evaluateQuery(q);
-                Relation projectedResult = result.project(columnsToKeep);
-                Relation renamedResult = result.rename(newParameters);
 
-                cout << q.toString() << "? ";
-                if (result.getTuples().size() > 0) {
-                    cout << "Yes(" << result.getTuples().size() << ")" << endl;
-                    if (columnsToKeep.size() > 0) {
-                        cout << projectedResult.toString();
-                    }
-                    if (newParameters.size() > 0) {
-                        cout << renamedResult.toString();
+                // for (int i = 0; i < mapSize; ++i) {
+                //     cout << columnIndexes[i] << " " << newColumnNames[i] << endl;
+                // }
+
+                // cout << "Relation after select: \n" << relationCopy.toString();
+                Relation projected = relationCopy.project(columnIndexes);
+                // cout << "Relation after project: \n" << projected.toString();
+                Relation renamed = projected.rename(newColumnNames);
+                // cout << "Relation after rename: \n" << renamed.toString();
+         
+                cout << query.toString() << "? ";
+                if (relationCopy.getTuples().size() > 0) {
+                    cout << "Yes(" << relationCopy.getTuples().size() << ")" << endl;
+                    if (newColumnNames.size() > 0) {
+                        cout << renamed.toString();
                     }
                 } else {
                     cout << "No" << endl;

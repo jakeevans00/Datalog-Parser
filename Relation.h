@@ -11,7 +11,6 @@ class Relation {
         string name;
         Scheme scheme;
         set<Tuple> tuples;
-        set<Tuple> resultTuples;
     
     public: 
         Relation(const string& name, const Scheme& scheme)
@@ -43,22 +42,6 @@ class Relation {
             return scheme;
         }
 
-        string printVariables() {
-            stringstream out;
-
-            for (const auto& tuple : resultTuples) {
-                out << "  ";
-                for (int i = 0; i < scheme.size(); ++i) {
-                    if (i != 0) out << ", ";
-                    out << scheme.at(i) + '=';
-                    out << tuple.at(i);
-                }
-                out << "\n";
-            }
-
-            return out.str();
-        }
-
         string toString() const {
             stringstream out;
             
@@ -76,30 +59,11 @@ class Relation {
             return out.str();
         }
 
-        Relation evaluateQuery(Predicate query) const {
+        Relation select(int index, const string& value) const {
             Relation result(name, scheme);
             result.addTuples(tuples);
-            
-            vector<string> parameters = query.getParameters();
-           
-            for (int i = 0; i < parameters.size(); ++i) {
-                if (parameters.at(i).at(0) == '\'') {
-                    result = result.select(i, parameters.at(i), result);
-                } else {
-                    for (int j = i + 1; j < parameters.size(); j++) {
-                        if (parameters.at(i) == parameters.at(j)) {
-                          
-                            result = result.select(i, j, result);
-                        }
-                    }
-                }
-            }
-            return result;
-        }
 
-        Relation select(int index, const string& value, Relation result) const {
-
-            for (const auto& tuple : result.getTuples()) {
+            for (const auto& tuple : tuples) {
                 if (tuple.at(index) != value) {
                     result.deleteTuple(tuple);
                 }
@@ -108,31 +72,16 @@ class Relation {
             return result;
         }
 
-        Relation select(int index, int index2, Relation result) const {
+        Relation select(int index, int index2) const {
+            Relation result(name, scheme);
+            result.addTuples(tuples);
+
             for (const auto& tuple : result.getTuples()) {
                 if (tuple.at(index) != tuple.at(index2)) {
                     result.deleteTuple(tuple);
                 } 
             }
             return result;
-        }
-
-        Relation rename(const Scheme& newScheme) const {
-            Relation result(name, newScheme);
-            result.addTuples(tuples);
-            return result;
-        }
-
-        vector<int> getIndices(const vector<string>& parameters) const {
-            vector<int> indices;
-            for (int i = 0; i < parameters.size(); ++i) {
-                for (int j = 0; j < scheme.size(); ++j) {
-                    if (parameters.at(i) == scheme.at(j)) {
-                        indices.push_back(j);
-                    }
-                }
-            }
-            return indices;
         }
 
         Relation project(const vector<int>& indices) const {
@@ -151,6 +100,12 @@ class Relation {
                 }
                 result.addTuple(newTuple);
             }
+            return result;
+        }
+
+        Relation rename(const Scheme& newScheme) const {
+            Relation result(name, newScheme);
+            result.addTuples(tuples);
             return result;
         }
 };

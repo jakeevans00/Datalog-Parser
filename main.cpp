@@ -34,6 +34,7 @@ int main(int argc, char* argv[]) {
     // std::cout << p.getDatalogProgram().toString();
 
     Interpreter i = Interpreter(dp);
+    i.createDatabase();
     i.interpret();
 
 
