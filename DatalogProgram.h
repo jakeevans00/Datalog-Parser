@@ -45,6 +45,10 @@ class DatalogProgram {
             rules.push_back(r);
         }
 
+        vector<Rule> getRules() {
+            return rules;
+        }
+
         std::string toString() {
             std::string output = "Schemes(" + std::to_string(schemes.size()) + "):\n";
             for (Predicate p : schemes) {

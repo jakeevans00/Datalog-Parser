@@ -32,4 +32,12 @@ class Database {
             getRelation(name).addTuple(tuple);
         }
 
+        int getTotalTuples() {
+            int total = 0;
+            for (const Relation& relation : relations) {
+                total += relation.getTuples().size();
+            }
+            return total;
+        }
+
 };

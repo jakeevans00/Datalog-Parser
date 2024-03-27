@@ -10,6 +10,15 @@ class Rule {
         void addPredicate(Predicate p) {
             predicates.push_back(p);
         }
+
+        Predicate getHeadPredicate() {
+            return headPredicate;
+        }
+
+        std::vector<Predicate> getBodyPredicates() {
+            return predicates;
+        }
+
         std::string toString() {
             std::string output = headPredicate.toString() + " :- ";
             for (unsigned int i = 0; i < predicates.size(); i++) {
