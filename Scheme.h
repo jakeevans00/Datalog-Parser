@@ -23,7 +23,7 @@ public:
   }
 
   int findIndex(const string& name) const {
-    for (int i = 0; i < names.size(); i++) {
+    for (unsigned i = 0; i < names.size(); i++) {
       if (names.at(i) == name) {
         return i;
       }

@@ -37,7 +37,7 @@ public:
     const Tuple& tuple = *this;
     stringstream out;
     // fix the code to print "name=value" pairs
-    for (int i=0; i < scheme.size(); i++) {
+    for (unsigned i=0; i < scheme.size(); i++) {
       out << scheme.at(i);
       out << "=";
       out << tuple.at(i);

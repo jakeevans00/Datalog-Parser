@@ -176,7 +176,7 @@ class Parser {
         void predicateList(Rule& r) {
             if (tokenType() == COMMA) {
                 match(COMMA);
-                r.addPredicate(predicate());
+                r.addBodyPredicate(predicate());
                 predicateList(r);
             } else {
                 return;
@@ -208,7 +208,7 @@ class Parser {
 
             if (tokenType() == COLON_DASH) {
                 match(COLON_DASH);
-                r.addPredicate(predicate());
+                r.addBodyPredicate(predicate());
                 predicateList(r);
                 match(PERIOD);
                 dp.addRule(r);

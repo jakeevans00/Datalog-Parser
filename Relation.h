@@ -48,7 +48,7 @@ class Relation {
             
             for (const auto& tuple : tuples) {
                 out << "  ";
-                for (int i = 0; i < scheme.size(); ++i) {
+                for (unsigned i = 0; i < scheme.size(); ++i) {
                     if (i != 0) out << ", ";
                     out << scheme.at(i) + '=';
                     out << tuple.at(i);
@@ -106,7 +106,7 @@ class Relation {
             return result;
         }
 
-        Relation project_2(vector<string> columns) const {
+        Relation project(vector<string> columns) const {
             Scheme newScheme;
             for (string& col : columns) {
                 if (!newScheme.find(col)) {

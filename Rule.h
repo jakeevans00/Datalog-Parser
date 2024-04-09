@@ -7,15 +7,15 @@ class Rule {
     public:
         Rule(Predicate headPredicate) : headPredicate(headPredicate) {}
 
-        void addPredicate(Predicate p) {
+        void addBodyPredicate(Predicate p) {
             predicates.push_back(p);
         }
 
-        Predicate getHeadPredicate() {
+        Predicate getHeadPredicate() const {
             return headPredicate;
         }
 
-        std::vector<Predicate> getBodyPredicates() {
+        std::vector<Predicate> getBodyPredicates() const {
             return predicates;
         }
 
