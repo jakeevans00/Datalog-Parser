@@ -1,4 +1,5 @@
 #include <string>
+#include <stack>
 #include <fstream>
 #include <iostream>
 #include "Token.h"
@@ -10,63 +11,48 @@
 #include "Interpreter.h"
 #include "Graph.h"
 
-// int main(int argc, char* argv[]) {
-//     std::string input = argv[1];
-//     std::ifstream file(input);
-
-//     if (!file.is_open()) {
-//         std::cout << "File not found" << std::endl;
-//         return 1;
-//     }
-    
-//     std::stringstream fileContents;
-//     fileContents << file.rdbuf();
-
-//     file.close();
-
-//     Scanner s = Scanner(fileContents.str());
-//     s.scanTokens();
-//     std::vector<Token> tokens = s.getTokens();
-
-//     Parser p = Parser(tokens);
-//     p.parse();
-
-//     DatalogProgram dp = p.getDatalogProgram();
-//     // std::cout << p.getDatalogProgram().toString();
-
-//     Interpreter i = Interpreter(dp);
-//     i.createDatabase();
-//     i.interpretQueries();
-
-//   return 0;
-
-// }
 int main(int argc, char* argv[]) {
+    std::string input = argv[1];
+    std::ifstream file(input);
 
+    if (!file.is_open()) {
+        std::cout << "File not found" << std::endl;
+        return 1;
+    }
+    
+    std::stringstream fileContents;
+    fileContents << file.rdbuf();
 
-  pair<string,vector<string>> ruleNames[] = {
-    { "A", { "B", "C" } },
-    { "B", { "A", "D" } },
-    { "B", { "B" } },
-    { "E", { "F", "G" } },
-    { "E", { "E", "F" } },
-  };
+    file.close();
 
-  vector<Rule> rules;
+    Scanner s = Scanner(fileContents.str());
+    s.scanTokens();
+    std::vector<Token> tokens = s.getTokens();
 
-  for (auto& rulePair : ruleNames) {
-    string headName = rulePair.first;
-    Rule rule = Rule(Predicate(headName));
-    vector<string> bodyNames = rulePair.second;
-    for (auto& bodyName : bodyNames)
-      rule.addBodyPredicate(Predicate(bodyName));
-    rules.push_back(rule);
-  }
+    Parser p = Parser(tokens);
+    p.parse();
 
-  vector<Graph> graphs = Interpreter::makeGraphs(rules);
-  Graph forwardGraph = graphs[0];
-  cout << forwardGraph.toString();
+    DatalogProgram dp = p.getDatalogProgram();
+
+    Interpreter i = Interpreter(dp);
+    i.createDatabase();
+    
+    vector<Graph> graphs = Interpreter::makeGraphs(dp.getRules());
+    Graph forwardGraph = graphs[0];
+    Graph reverseGraph = graphs[1];
+    cout << "Dependency Graph\n";
+    cout << forwardGraph.toString() << endl;
+
+    // cout << "Reverse Graph\n";
+    // cout << reverseGraph.toString() << endl;
+
+    stack<int> postOrder = reverseGraph.dfsForest();
+    // cout << "Postorder Numbers\n";
+
+    vector<vector<int>> sccs = forwardGraph.dfsForest(postOrder);
+
+    i.evaluateRules(sccs);
+    i.interpretQueries();
 
   return 0;
-
 }

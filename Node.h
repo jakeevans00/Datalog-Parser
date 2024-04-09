@@ -8,12 +8,15 @@ class Node {
  private:
 
   set<int> adjacentNodeIDs;
-  int postOrder;
 
  public:
 
   void addEdge(int adjacentNodeID) {
     adjacentNodeIDs.insert(adjacentNodeID);
+  }
+
+  set<int> getEdges() {
+    return adjacentNodeIDs;
   }
 
   string toString() {
@@ -22,7 +25,7 @@ class Node {
         output += "R" + to_string(*it) + ",";
     }
 
-    return output;
+    return output.substr(0, output.size() - 1);
   }
 
 };

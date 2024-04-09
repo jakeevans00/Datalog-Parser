@@ -151,7 +151,7 @@ class Relation {
             for (unsigned i = 0; i < right.scheme.size(); i++) {
                 bool unique = true;
                 for (const auto& pair : matchingColumns) {
-                    if (pair.second == i) {
+                    if (static_cast<unsigned int>(pair.second) == i) {
                         unique = false;
                     }
                 }

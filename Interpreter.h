@@ -15,7 +15,6 @@ class Interpreter {
         void createDatabase() {
             addRelations();
             addFacts();
-            evaluateRules();
         }
 
         static vector<Graph> makeGraphs(const vector<Rule>& rules) {
@@ -48,6 +47,77 @@ class Interpreter {
             for (Predicate query : datalogProgram.getQueries()) {
                 interpretQuery(query);
             }        
+        }
+        void evaluateRules(vector<vector<int>> sccs) {
+            cout << "Rule Evaluation" << endl;       
+            set<Tuple> newTuples;
+
+            for (auto& scc : sccs) {
+                bool changed = true;
+                bool trivial = false;
+                int passes = 0;
+
+                string sccString = "";
+                for (int ruleIndex : scc) {
+                    sccString += "R" + to_string(ruleIndex) + ",";
+                }
+
+                cout << "SCC: " << sccString.substr(0, sccString.size() - 1) << endl;
+
+                while (changed) {
+                    changed = false;
+                    passes++;
+                    newTuples.clear();
+
+                    if (scc.size() == 1) {
+                        Rule rule = datalogProgram.getRules().at(scc.at(0));
+                        string head = rule.getHeadPredicate().getId();
+                        trivial = true;
+
+                        for (Predicate bodyPredicate : rule.getBodyPredicates()) {
+                            if (head == bodyPredicate.getId()) {
+                                trivial = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    for (int ruleIndex : scc) {
+                        Rule rule = datalogProgram.getRules().at(ruleIndex);
+                        cout << rule.toString() << endl; 
+                        vector<Relation> resultingRelations;
+
+                        for (Predicate bodyPredicate : rule.getBodyPredicates()) {
+                            Relation result = interpretPredicate(bodyPredicate);
+                            resultingRelations.push_back(result);
+                        }
+
+                        Relation joined = resultingRelations.at(0);  
+                        for (unsigned int i = 1; i < resultingRelations.size(); ++i) {
+                            joined = joined.join(resultingRelations.at(i));
+                        }
+
+                        Relation projected = joined.project(rule.getHeadPredicate().getParameters());
+                        Relation renamed = projected.rename(rule.getHeadPredicate().getParameters());
+
+                        Relation& headRelation = database.getRelation(rule.getHeadPredicate().getId());
+                        newTuples = headRelation.unite(renamed);
+
+                        if (newTuples.size() > 0 ) {
+                            changed = true;
+                            for (auto& tuple : newTuples) {
+                                cout << "  " << tuple.toString(headRelation.getScheme()) << endl;
+                            }
+                        }
+
+                        if (trivial) {
+                            changed = false;
+                        }
+                    }   
+                }
+                cout << passes << " passes: " <<  sccString.substr(0, sccString.size() - 1) << endl; 
+            }
+            cout << endl;
         }
 
         void interpretQuery(Predicate query) {
@@ -117,48 +187,7 @@ class Interpreter {
             }
         }
 
-        void evaluateRules() {
-            cout << "Rule Evaluation" << endl;
-            bool changed = true;
-            int passes = 0;
-            set<Tuple> newTuples;
-
-            while (changed) {
-                changed = false;
-                passes++;
-                newTuples.clear();
-
-                for (Rule rule : datalogProgram.getRules()) {
-                    cout << rule.toString() << endl; 
-                    vector<Relation> resultingRelations;
-
-                    for (Predicate bodyPredicate : rule.getBodyPredicates()) {
-                        Relation result = interpretPredicate(bodyPredicate);
-                        resultingRelations.push_back(result);
-                    }
-
-                    Relation joined = resultingRelations.at(0);  
-                    for (unsigned int i = 1; i < resultingRelations.size(); ++i) {
-                        joined = joined.join(resultingRelations.at(i));
-                    }
-
-                    Relation projected = joined.project(rule.getHeadPredicate().getParameters());
-                    Relation renamed = projected.rename(rule.getHeadPredicate().getParameters());
-
-                    Relation& headRelation = database.getRelation(rule.getHeadPredicate().getId());
-                    newTuples = headRelation.unite(renamed);
-
-                    if (newTuples.size() > 0 ) {
-                        changed = true;
-                        for (auto& tuple : newTuples) {
-                            cout << "  " << tuple.toString(headRelation.getScheme()) << endl;
-                        }
-                    }
-                }   
-                
-            }
-            cout << endl << "Schemes populated after " << passes << " passes through the Rules." << endl << endl;
-        }
+        
         
 
         Relation interpretPredicate(Predicate predicate) {
